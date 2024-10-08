@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const bodyParser = require('body-parser');
 
@@ -58,7 +58,7 @@ app.delete("/grocery/:id", async (req, res) => {
     const coll = db.collection("grocery");
     const id = req.params.id; // Get the ID from the request parameters
 
-    const result = await coll.deleteOne({ _id: new MongoClient.ObjectId(id) });
+    const result = await coll.deleteOne({ _id: new ObjectId(id) });
     if (result.deletedCount === 1) {
       res.status(200).json({ message: "Item removed" });
     } else {

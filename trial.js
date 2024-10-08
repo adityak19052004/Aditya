@@ -1,32 +1,38 @@
+
+const { MongoClient, ServerApiVersion } = require('mongodb');
 const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-
+const uri = "mongodb+srv://adityakbanglore372:adityak2004@cluster0.5yhme.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-app.use(cors()); // Enable CORS
-app.use(bodyParser.json()); // Parse JSON bodies
-
-// In-memory storage for grocery lists
-let groceryLists = [];
-
-// Endpoint to save grocery list
-app.post('/api/grocery', (req, res) => {
-    const newList = req.body;
-
-    // You can add logic here to handle updating or storing lists uniquely
-    groceryLists = newList; // Replace or save the list
-
-    res.status(200).json({ message: 'Grocery list saved!', data: groceryLists });
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
 });
 
-// Endpoint to get grocery list
-app.get('/api/grocery', (req, res) => {
-    res.status(200).json(groceryLists);
+async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
+run().catch(console.dir);
+
+app.get("/grocery", async(req, res) => {
+  await client.connect();
+  const db= client.db("trial");
+  const coll=db.collection("grocery");
+  const v = await coll.findOne({"adi":"adi"});
+ res.json({"message": v.beebzz});
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(3000, () => {
+ console.log("Server running on port 3000");
 });

@@ -1,4 +1,3 @@
-
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -26,13 +25,13 @@ async function run() {
 
 run().catch(console.dir);
 
-// GET endpoint to retrieve an item
+// GET endpoint to retrieve all grocery items
 app.get("/grocery", async (req, res) => {
   try {
     const db = client.db("trial");
     const coll = db.collection("grocery");
-    const item = await coll.findOne({ "adi": "adi" });
-    res.json({ "message": item ? item.beebzz : "Item not found" });
+    const items = await coll.find({}).toArray(); // Retrieve all items
+    res.json(items);
   } catch (err) {
     res.status(500).json({ error: "An error occurred" });
   }
@@ -49,6 +48,42 @@ app.post("/grocery", async (req, res) => {
     res.status(201).json({ message: "Item added", id: result.insertedId });
   } catch (err) {
     res.status(500).json({ error: "An error occurred while adding the item" });
+  }
+});
+
+// DELETE endpoint to remove a grocery item by ID
+app.delete("/grocery/:id", async (req, res) => {
+  try {
+    const db = client.db("trial");
+    const coll = db.collection("grocery");
+    const id = req.params.id; // Get the ID from the request parameters
+
+    const result = await coll.deleteOne({ _id: new MongoClient.ObjectId(id) });
+    if (result.deletedCount === 1) {
+      res.status(200).json({ message: "Item removed" });
+    } else {
+      res.status(404).json({ error: "Item not found" });
+    }
+  } catch (err) {
+    res.status(500).json({ error: "An error occurred while removing the item" });
+  }
+});
+
+// PUT endpoint to update the grocery list (optional implementation)
+app.put("/grocery", async (req, res) => {
+  try {
+    const db = client.db("trial");
+    const coll = db.collection("grocery");
+    const items = req.body; // Expecting the list of items in the request body
+
+    // Clear existing items (optional)
+    await coll.deleteMany({});
+
+    // Insert new items
+    const result = await coll.insertMany(items);
+    res.status(200).json({ message: "Grocery list updated", count: result.insertedCount });
+  } catch (err) {
+    res.status(500).json({ error: "An error occurred while updating the grocery list" });
   }
 });
 
